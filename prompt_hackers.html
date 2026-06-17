@@ -1,0 +1,1218 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0f0a;--bg3:#111d11;--bg4:#0b130b;
+--green:#00c970;--green2:#007a44;--green3:#00e87a;
+--amber:#ffd000;--red:#ff4455;
+--text:#cce8cc;--text2:#6a9e6a;--text3:#3a5e3a;
+--border:#1a2e1a;--border2:#244424;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,100,0.012) 3px,rgba(0,255,100,0.012) 4px);pointer-events:none;z-index:999}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--bg4);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:100;gap:12px;flex-wrap:wrap}
+.logo{font-size:15px;font-weight:700;color:var(--green3);letter-spacing:3px}
+.logo span{color:var(--text2)}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.score-pill{background:var(--bg3);border:1px solid var(--green);border-radius:6px;padding:4px 12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px}
+.score-pill strong{color:var(--amber);font-size:16px}
+.round-tag{font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:5px;padding:3px 8px}
+
+.main{padding:20px;display:flex;flex-direction:column;gap:14px;max-width:780px;margin:0 auto}
+
+.mission-box{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px}
+.m-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.m-tag{font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase}
+.m-num{font-size:11px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px}
+.m-text{font-size:15px;line-height:1.65;color:var(--text);margin-bottom:10px}
+.m-ethics{background:rgba(255,68,85,0.08);border:1px solid rgba(255,68,85,0.2);border-radius:6px;padding:8px 12px;font-size:12px;color:#F0997B;display:flex;gap:8px;align-items:flex-start}
+.m-ethics-label{flex-shrink:0;font-weight:700;color:#ff6677}
+
+.builder-box{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.term-bar{background:var(--bg4);padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.dots{display:flex;gap:5px}.dot{width:9px;height:9px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#ffbd2e}.dot.g{background:#28ca41}
+.term-title{font-size:11px;color:var(--text3);margin-left:6px}
+.builder-inner{padding:16px;display:flex;flex-direction:column;gap:12px}
+
+.card-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inp-group{display:flex;flex-direction:column;gap:4px}
+.inp-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:6px}
+.inp-label.persona{color:#AFA9EC}.inp-label.contexto{color:#5DCAA5}
+.inp-label.tarefa{color:#FAC775}.inp-label.formato{color:#85B7EB}.inp-label.etica{color:#F0997B}
+.code-hint{font-size:9px;opacity:0.55;font-weight:400}
+
+.card-select{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 8px;width:100%;outline:none;cursor:pointer;transition:border-color 0.15s}
+.card-select:focus{border-color:var(--border2)}
+.card-select.persona:focus{border-color:#534AB7}
+.card-select.contexto:focus{border-color:#0F6E56}
+.card-select.tarefa:focus{border-color:#854F0B}
+.card-select.formato:focus{border-color:#185FA5}
+.card-select.etica:focus{border-color:#993C1D}
+
+/* bloqueio visual quando não pode validar */
+.validate-blocked{background:rgba(255,68,85,0.06);border:1px solid rgba(255,68,85,0.2);border-radius:7px;padding:9px 12px;font-size:11px;color:#F0997B;display:flex;align-items:flex-start;gap:8px}
+.validate-blocked ul{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:3px}
+.validate-blocked li::before{content:'✗ ';color:var(--red)}
+
+.prompt-preview-area{background:var(--bg4);border:1px solid var(--border);border-radius:7px;padding:12px 14px;min-height:88px;font-size:11px;line-height:1.8;color:var(--text2)}
+.ph{color:var(--text3);font-style:italic}
+.seg.persona{color:#AFA9EC}.seg.contexto{color:#5DCAA5}
+.seg.tarefa{color:#FAC775}.seg.formato{color:#85B7EB}
+.seg.mission{color:var(--green3)}.seg.etica{color:#F0997B}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:7px;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;transition:all 0.15s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);filter:none}
+.btn-primary{background:var(--green2);color:var(--green3);border:1px solid var(--green)}
+.btn-ghost{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
+.btn-warn{background:rgba(255,208,0,0.1);color:var(--amber);border:1px solid rgba(255,208,0,0.3)}
+.btn:disabled{opacity:0.3;cursor:not-allowed;transform:none;filter:none}
+
+.result-box{border-radius:10px;padding:14px;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.result-box.valid{background:rgba(0,201,112,0.08);border:1px solid var(--green2)}
+.result-box.invalid{background:rgba(255,68,85,0.08);border:1px solid rgba(255,68,85,0.4)}
+.result-box.loading{background:var(--bg3);border:1px solid var(--border2)}
+.result-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.result-title{font-size:13px;font-weight:700}
+.result-title.valid{color:var(--green3)}.result-title.invalid{color:var(--red)}.result-title.loading{color:var(--text2)}
+.mode-badge{margin-left:auto;font-size:9px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px}
+.pts-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.pts-chip{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700}
+.pts-chip.pos{background:rgba(0,201,112,0.12);color:var(--green3);border:1px solid var(--green2)}
+.pts-chip.neg{background:rgba(255,68,85,0.12);color:var(--red);border:1px solid rgba(255,68,85,0.35)}
+.pts-chip.zero{background:rgba(255,208,0,0.1);color:var(--amber);border:1px solid rgba(255,208,0,0.3)}
+.result-fb{font-size:12px;line-height:1.65;color:var(--text);margin-bottom:8px}
+.criteria-list{display:flex;flex-direction:column;gap:5px}
+.crit{display:flex;align-items:flex-start;gap:7px;font-size:11px}
+.crit-ok{color:var(--green);flex-shrink:0;margin-top:1px}
+.crit-fail{color:var(--red);flex-shrink:0;margin-top:1px}
+.crit-text{color:var(--text2);line-height:1.5}
+
+.hist-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px}
+.sec-label{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.hist-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.hist-item:last-child{border:none}
+.hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hist-dot.v{background:var(--green)}.hist-dot.i{background:var(--red)}
+.hist-round{color:var(--text3);width:52px;flex-shrink:0}
+.hist-mission{flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-pts{font-weight:700;flex-shrink:0}
+.hist-pts.p{color:var(--green3)}.hist-pts.n{color:var(--red)}
+
+.discard-box{background:rgba(255,208,0,0.07);border:1px solid rgba(255,208,0,0.25);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--amber)}
+.discard-box .dbtn-row{display:flex;gap:6px;margin-top:8px}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.setup{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;gap:14px}
+.setup-panel{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:440px;width:100%}
+.setup-title{font-size:17px;font-weight:700;color:var(--green3);letter-spacing:2px;margin-bottom:4px;text-align:center}
+.setup-sub{font-size:11px;color:var(--text2);text-align:center;margin-bottom:20px;line-height:1.65}
+.field{margin-bottom:12px}
+.field-label{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.field input{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:9px 11px;width:100%;outline:none}
+.field input:focus{border-color:var(--green2)}
+.player-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.ptag{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.ptag .rm{cursor:pointer;color:var(--red)}
+
+.gameover-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 49px);padding:24px}
+.go-panel{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:480px;width:100%}
+.go-title{font-size:22px;font-weight:700;color:var(--green3);letter-spacing:3px;text-align:center;margin-bottom:4px}
+.go-score{font-size:56px;font-weight:700;color:var(--amber);text-align:center;margin:10px 0 4px}
+.go-label{font-size:10px;color:var(--text3);letter-spacing:2px;text-align:center;margin-bottom:18px}
+.players-final{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.pfinal{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text2)}
+.summary-box{background:var(--bg4);border:1px solid var(--border);border-radius:7px;padding:10px 13px;font-size:11px;color:var(--text2);line-height:2.2;margin-bottom:14px}
+
+/* ===== MAPEAMENTO VISUAL HTML 1 → DESIGN HTML 2 ===== */
+
+.page{
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  max-width:780px;
+  margin:0 auto;
+}
+
+.card{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:16px;
+}
+
+.card-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+
+  font-size:11px;
+  color:var(--green3);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+.pill{
+  background:var(--bg3);
+  border:1px solid var(--green);
+  border-radius:6px;
+  padding:4px 12px;
+
+  font-size:12px;
+  color:var(--green);
+
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.pill strong{
+  color:var(--amber);
+  font-size:16px;
+}
+
+.selects-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.prompt-preview{
+  background:var(--bg4);
+  border:1px solid var(--border);
+  border-radius:7px;
+
+  padding:12px 14px;
+  min-height:88px;
+
+  font-size:11px;
+  line-height:1.8;
+  color:var(--text2);
+}
+
+.prompt-preview .seg-p{color:#AFA9EC;}
+.prompt-preview .seg-c{color:#5DCAA5;}
+.prompt-preview .seg-t{color:#FAC775;}
+.prompt-preview .seg-f{color:#85B7EB;}
+.prompt-preview .seg-m{color:var(--green3);}
+.prompt-preview .seg-e{color:#F0997B;}
+
+.master-panel,
+.result-panel{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:14px;
+}
+
+.blocker-msg{
+  background:rgba(255,68,85,.06);
+  border:1px solid rgba(255,68,85,.2);
+  border-radius:7px;
+
+  padding:9px 12px;
+
+  font-size:11px;
+  color:#F0997B;
+}
+
+.blocker-msg ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.blocker-msg li{
+  margin:4px 0;
+}
+
+.blocker-msg li::before{
+  content:'✗ ';
+  color:var(--red);
+}
+
+.badge-p{color:#AFA9EC;}
+.badge-c{color:#5DCAA5;}
+.badge-t{color:#FAC775;}
+.badge-f{color:#85B7EB;}
+.badge-e{color:#F0997B;}
+
+.session-card{
+  background:var(--bg4);
+  border:1px solid var(--border);
+  border-radius:8px;
+
+  padding:12px;
+  cursor:pointer;
+
+  transition:.15s;
+}
+
+.session-card:hover{
+  border-color:var(--green2);
+  transform:translateY(-1px);
+}
+
+.session-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+
+.session-date{
+  color:var(--text3);
+  font-size:10px;
+}
+
+.session-score{
+  color:var(--amber);
+  font-weight:700;
+}
+
+.session-players,
+.session-rounds{
+  color:var(--text2);
+  font-size:11px;
+}
+
+button,
+select,
+input{
+  background:var(--bg4);
+  border:1px solid var(--border2);
+  color:var(--text);
+
+  font-family:'JetBrains Mono', monospace;
+
+  transition:.15s;
+}
+
+button:hover:not(:disabled){
+  filter:brightness(1.15);
+  transform:translateY(-1px);
+}
+
+button:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+input:focus,
+select:focus{
+  outline:none;
+  border-color:var(--green);
+}
+
+/* evita overflow dos itens dentro do grid */
+.selects-grid > *{
+    min-width: 0;
+}
+
+/* força o select a respeitar a largura da coluna */
+.selects-grid select,
+.card-select{
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: block;
+}
+
+/* garante que o container não expanda */
+.inp-group{
+    min-width: 0;
+}
+
+.menu-btn{
+  background:var(--bg4);
+  border:1px solid var(--border2);
+  color:var(--text2);
+
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  padding:6px 12px;
+  border-radius:6px;
+
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+
+  cursor:pointer;
+  transition:all .15s ease;
+}
+
+.menu-btn:hover{
+  border-color:var(--green);
+  color:var(--green3);
+  transform:translateY(-1px);
+}
+
+.menu-btn i{
+  font-size:14px;
+}
+
+.manual-modal{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);
+
+  display:none;
+  align-items:center;
+  justify-content:center;
+
+  padding:24px;
+  z-index:9999;
+}
+
+.manual-modal.show{
+  display:flex;
+}
+
+.manual-panel{
+  width:min(920px, 100%);
+  max-height:85vh;
+
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:12px;
+
+  overflow:hidden;
+
+  box-shadow:0 0 40px rgba(0,0,0,.45);
+}
+
+.manual-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:16px 20px;
+
+  background:var(--bg4);
+  border-bottom:1px solid var(--border);
+}
+
+.manual-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  color:var(--green3);
+
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.manual-close{
+  width:36px;
+  height:36px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:transparent;
+  border:1px solid var(--border2);
+  border-radius:6px;
+
+  color:var(--text2);
+  cursor:pointer;
+}
+
+.manual-close:hover{
+  border-color:var(--green);
+  color:var(--green3);
+}
+
+.manual-content{
+  max-height:calc(85vh - 70px);
+  overflow-y:auto;
+
+  padding:24px;
+
+  color:var(--text);
+  line-height:1.8;
+  font-size:13px;
+}
+
+.manual-content h2,
+.manual-content h3{
+  color:var(--green3);
+  margin:24px 0 12px;
+}
+
+.manual-content ul{
+  padding-left:20px;
+}
+
+.manual-content table{
+  width:100%;
+  border-collapse:collapse;
+  margin:16px 0;
+}
+
+.manual-content th,
+.manual-content td{
+  padding:10px;
+  border:1px solid var(--border2);
+}
+
+.manual-content th{
+  background:var(--bg4);
+  color:var(--green3);
+}
+</style>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<div id="root"></div>
+
+<script>
+const CARDS={
+  persona:{
+    "1":"Especialista em Segurança Digital",
+    "2":"Professor de Ciências",
+    "3":"Professor de História",
+    "4":"Professor de Matemática",
+    "5":"Desenvolvedor de tecnologia educacional",
+    "6":"Analista de dados",
+    "7":"Psicólogo escolar",
+    "8":"Pesquisador científico",
+    "9":"Jornalista investigativo",
+    "10":"Especialista em sustentabilidade",
+    "11":"Designer de experiências educacionais",
+    "12":"Consultor de acessibilidade",
+    "13":"Engenheiro de automação",
+    "14":"Gestor escolar",
+    "15":"Mentor de inovação",
+    "16":"Especialista em cidadania digital",
+    "17":"Cientista de IA",
+    "18":"Planejador urbano",
+    "19":"Bibliotecário digital",
+    "20":"Empreendedor social"
+  },
+  contexto:{
+    "1":"O público-alvo possui entre 8 e 10 anos",
+    "2":"O público-alvo possui entre 11 e 14 anos",
+    "3":"O público-alvo possui entre 15 e 18 anos",
+    "4":"A escola possui orçamento zero para tecnologia",
+    "5":"A escola tem acesso limitado à internet",
+    "6":"A solução deve funcionar sem computadores",
+    "7":"A escola possui poucos recursos materiais",
+    "8":"O tempo disponível é de apenas uma semana",
+    "9":"A solução será apresentada para professores",
+    "10":"A solução será apresentada para pais e responsáveis",
+    "11":"O ambiente possui estudantes com necessidades diversas",
+    "12":"A escola está localizada em uma área rural",
+    "13":"A solução precisa ser simples de aplicar",
+    "14":"A solução precisa ser divertida",
+    "15":"A escola enfrenta problemas de desmotivação",
+    "16":"O número de estudantes é muito grande",
+    "17":"A solução precisa gerar impacto rápido",
+    "18":"A escola possui recursos tecnológicos avançados",
+    "19":"A atividade ocorrerá durante uma feira escolar",
+    "20":"A solução deve incentivar colaboração entre alunos"
+  },
+  tarefa:{
+    "1":"Crie um plano passo a passo",
+    "2":"Liste soluções possíveis",
+    "3":"Explique como resolver o problema",
+    "4":"Desenvolva uma estratégia",
+    "5":"Crie um roteiro de implementação",
+    "6":"Monte um guia prático",
+    "7":"Elabore recomendações",
+    "8":"Crie um conjunto de regras",
+    "9":"Proponha ideias criativas",
+    "10":"Descreva vantagens e desafios",
+    "11":"Organize uma sequência de ações",
+    "12":"Crie perguntas para investigação",
+    "13":"Desenvolva um plano de melhoria",
+    "14":"Monte uma lista de prioridades",
+    "15":"Crie um plano de emergência",
+    "16":"Explique usando exemplos",
+    "17":"Desenvolva critérios de avaliação",
+    "18":"Crie sugestões de atividades",
+    "19":"Projete uma solução futura",
+    "20":"Crie uma proposta inovadora"
+  },
+  formato:{
+    "1":"Organize em tópicos",
+    "2":"Escreva em formato de tabela",
+    "3":"Apresente em checklist",
+    "4":"Divida por etapas numeradas",
+    "5":"Escreva como um relatório",
+    "6":"Escreva em formato de perguntas e respostas",
+    "7":"Apresente em ordem de prioridade",
+    "8":"Escreva em formato de roteiro",
+    "9":"Apresente em um quadro comparativo",
+    "10":"Escreva como um plano de ação",
+    "11":"Organize por níveis de dificuldade",
+    "12":"Escreva como um guia rápido",
+    "13":"Apresente usando categorias",
+    "14":"Escreva em formato de cronograma",
+    "15":"Resuma em cinco pontos principais"
+  },
+  etica:{
+    "1":"Garanta anonimato de todas as pessoas citadas",
+    "2":"Não utilize dados pessoais reais",
+    "3":"Remova qualquer possibilidade de preconceito ou discriminação",
+    "4":"Evite linguagem ofensiva",
+    "5":"Respeite as diretrizes da LGPD",
+    "6":"Garanta acessibilidade para diferentes públicos",
+    "7":"Evite reforçar estereótipos",
+    "8":"Considere inclusão social",
+    "9":"Evite conteúdos potencialmente perigosos",
+    "10":"Explique limitações da solução proposta",
+    "11":"Garanta transparência sobre uso de IA",
+    "12":"Não produza informações falsas",
+    "13":"Indique possíveis riscos da solução",
+    "14":"Garanta linguagem respeitosa",
+    "15":"Proteja informações sensíveis"
+  }
+};
+
+const PERSONA_RELEVANCE={1:["1","16","17","5","15"],2:["5","12","20","14","11"],3:["7","14","17","11","15"],4:["6","14","17","5","13"],5:["14","16","20","11","12"],6:["2","17","8","11","15"],7:["19","13","14","5","6"],8:["7","16","15","11","20"],9:["2","3","4","8","11"],10:["10","12","11","20","18"]};
+
+const MISSIONS=[
+  {id:1,text:"Criar um programa de conscientização sobre segurança digital para estudantes do ensino fundamental.",ethics:"Garanta o anonimato de todas as pessoas citadas."},
+  {id:2,text:"Desenvolver um plano de inclusão digital para uma escola pública sem recursos tecnológicos.",ethics:"Considere inclusão social e acessibilidade para diferentes públicos."},
+  {id:3,text:"Propor uma solução para reduzir a evasão escolar usando ferramentas de IA.",ethics:"Não utilize dados pessoais reais dos alunos."},
+  {id:4,text:"Criar um sistema de acompanhamento de desempenho acadêmico para professores.",ethics:"Respeite as diretrizes da LGPD e proteja informações sensíveis."},
+  {id:5,text:"Desenvolver uma estratégia de comunicação entre escola e famílias usando tecnologia acessível.",ethics:"Garanta linguagem respeitosa e evite reforçar estereótipos."},
+  {id:6,text:"Criar um plano de aula sobre mudanças climáticas com uso responsável de IA.",ethics:"Garanta transparência sobre uso de IA e cite limitações da solução."},
+  {id:7,text:"Propor uma solução automatizada para organização da biblioteca escolar.",ethics:"Garanta anonimato de alunos e respeite as diretrizes da LGPD."},
+  {id:8,text:"Desenvolver um programa de mentoria digital entre estudantes mais velhos e mais novos.",ethics:"Evite conteúdos potencialmente perigosos e garanta linguagem respeitosa."},
+  {id:9,text:"Criar um roteiro de projeto interdisciplinar envolvendo matemática, ciências e tecnologia.",ethics:"Remova qualquer possibilidade de preconceito ou discriminação."},
+  {id:10,text:"Propor uma feira de ciências digital acessível para escolas de área rural.",ethics:"Considere inclusão social e explique limitações da solução proposta."},
+];
+
+const CRITERIA=[
+  {id:'structure',label:'Prompt bem estruturado',desc:'O prompt é coeso, claro e conectado à missão da rodada.',pts:3,isPenalty:false},
+  {id:'cards',label:'Uso correto das 4 cartas',desc:'Persona, Contexto, Tarefa e Formato foram usados de forma adequada e integrada.',pts:2,isPenalty:false},
+  {id:'creative',label:'Solução criativa',desc:'A combinação de cartas propõe uma abordagem original e adequada ao problema.',pts:2,isPenalty:false},
+  {id:'mission',label:'Missão e ética cumpridas',desc:'O prompt endereça a missão E respeita a restrição ética da rodada.',pts:3,isPenalty:false},
+  {id:'penalty',label:'Violação ética',desc:'O prompt usa dados sensíveis, linguagem ofensiva ou incentiva práticas prejudiciais.',pts:-3,isPenalty:true},
+];
+
+const STORAGE_KEY='prompt_hackers_sessions';
+
+function loadSessions(){
+  try{const d=localStorage.getItem(STORAGE_KEY);return d?JSON.parse(d):[]}catch(e){return[]}
+}
+function saveSessions(sessions){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(sessions))}catch(e){}
+}
+function addSession(session){
+  const sessions=loadSessions();
+  sessions.unshift(session);
+  if(sessions.length>50)sessions.splice(50);
+  saveSessions(sessions);
+}
+
+let usedMissions=[];
+function drawMission(){
+  if(usedMissions.length===MISSIONS.length)usedMissions=[];
+  const rem=MISSIONS.filter(m=>!usedMissions.includes(m.id));
+  const m=rem[Math.floor(Math.random()*rem.length)];
+  usedMissions.push(m.id);
+  return m;
+}
+
+let S={
+  screen:'setup',
+  players:[],teamScore:0,
+  round:1,totalRounds:3,
+  mission:null,
+  hand:{persona:'',contexto:'',tarefa:'',formato:'',etica:''},
+  masterChecks:{structure:false,cards:false,creative:false,mission:false,penalty:false},
+  masterNote:'',
+  result:null,
+  history:[],
+  setupName:'',setupPlayers:[],
+  showDiscard:false,
+  histTab:'current',
+  currentSession:null,
+};
+
+function getBlockers(){
+  const h=S.hand;const b=[];
+  if(!h.persona)b.push('Carta Persona obrigatória (P01–P20)');
+  if(!h.tarefa)b.push('Carta Tarefa obrigatória (T01–T20)');
+  if(!h.formato)b.push('Carta Formato obrigatória (F01–F15)');
+  return b;
+}
+
+function computeMasterScore(){
+  let pts=0;
+  CRITERIA.forEach(c=>{if(S.masterChecks[c.id])pts+=c.pts});
+  return pts;
+}
+
+function buildSegs(){
+  const h=S.hand,m=S.mission;
+  if(!h.persona&&!h.tarefa&&!h.formato)return null;
+  const segs=[];
+  if(h.persona)segs.push({cls:'seg-p',text:`Aja como um ${CARDS.persona[h.persona]}.`});
+  if(h.contexto)segs.push({cls:'seg-c',text:`Contexto: ${CARDS.contexto[h.contexto]}.`});
+  segs.push({cls:'seg-m',text:`Missão: ${m.text}`});
+  if(h.tarefa)segs.push({cls:'seg-t',text:`${CARDS.tarefa[h.tarefa]}.`});
+  if(h.formato)segs.push({cls:'seg-f',text:`${CARDS.formato[h.formato]}.`});
+  const et=h.etica?CARDS.etica[h.etica]:m.ethics;
+  segs.push({cls:'seg-e',text:`Restrição ética: ${et}.`});
+  return segs;
+}
+
+function promptHtml(){
+  const segs=buildSegs();
+  if(!segs)return`<span class="ph">// Selecione as cartas físicas pelos códigos acima...</span>`;
+  return segs.map(s=>`<span class="${s.cls}">${s.text}</span>`).join(' ');
+}
+
+function makeSelect(id,cls,opts,placeholder){
+  const entries=Object.entries(opts).map(([k,v])=>`<option value="${k}">${k} — ${v.length>48?v.slice(0,48)+'...':v}</option>`).join('');
+  return`<select id="sel-${id}" class="${cls}" onchange="onSel('${id}',this.value)">
+    <option value="">— ${placeholder} —</option>${entries}
+  </select>`;
+}
+
+function onSel(id,val){S.hand[id]=val;S.result=null;S.masterChecks={structure:false,cards:false,creative:false,mission:false,penalty:false};S.masterNote='';rerender()}
+
+function rerender(){
+  const root=document.getElementById('root');
+  if(!root)return;
+  root.innerHTML=S.screen==='setup'?rSetup():S.screen==='game'?rGame():S.screen==='gameover'?rGameOver():rHistory();
+}
+
+function openManual(){
+  document.getElementById('manual-modal').classList.add('show');
+}
+
+function closeManual(){
+  document.getElementById('manual-modal').classList.remove('show');
+}
+
+function rSetup(){
+  const sessions=loadSessions();
+  return`
+<div class="topbar">
+  <div class="logo"><span class="logo-badge">PH</span> PROMPT HACKERS</div>
+  <button class="menu-btn" onclick="S.screen='history';rerender()"> <i class="ti ti-history"></i>Histórico</button>
+  <button class="menu-btn" onclick="openManual()"><i class="ti ti-book-2"></i> Manual</button>
+</div>
+<div class="page">
+  <div class="card">
+    <div class="card-title">// nova partida</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div class="inp-label" style="margin-bottom:6px">número de rodadas</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${[3,4,5,6,7,8,10].map(n=>`<button onclick="S.totalRounds=${n};rerender()" style="padding:5px 12px;border-radius:var(--border-radius-md);${S.totalRounds===n?'background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)':''}">${n}</button>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="inp-label" style="margin-bottom:6px">jogadores do grupo <span class="code-hint">(mín. 2, máx. 6)</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="pname-inp" placeholder="Nome do jogador..." oninput="S.setupName=this.value" onkeydown="if(event.key==='Enter')addPlayer()" value="${S.setupName}" style="flex:1">
+          <button onclick="addPlayer()" ${S.setupPlayers.length>=6?'disabled':''} style="padding:5px 12px;border-radius:var(--border-radius-md)"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+        </div>
+        ${S.setupPlayers.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${S.setupPlayers.map((p,i)=>`<span style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:3px 10px;font-size:11px;display:flex;align-items:center;gap:6px">${p}<span onclick="rmPlayer(${i})" style="cursor:pointer;color:var(--color-text-danger)">×</span></span>`).join('')}</div>`:''}
+      </div>
+      <button onclick="startGame()" ${S.setupPlayers.length<2?'disabled':''} style="padding:10px;border-radius:var(--border-radius-md);font-size:12px;${S.setupPlayers.length>=2?'background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)':''}">
+        ${S.setupPlayers.length<2?'adicione pelo menos 2 jogadores para começar':'<i class="ti ti-player-play" aria-hidden="true"></i>  iniciar partida'}
+      </button>
+    </div>
+  </div>
+  ${sessions.length?`
+  <div class="card">
+    <div class="card-title">últimas partidas <span onclick="S.screen='history';rerender()" style="cursor:pointer;color:var(--color-text-secondary);font-size:10px;font-weight:400">ver todas <i class="ti ti-arrow-right" aria-hidden="true"></i></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${sessions.slice(0,3).map(s=>`<div class="session-card" onclick="viewSession('${s.id}')">
+        <div class="session-head"><span class="session-date">${s.date}</span><span class="session-score">${s.teamScore} pts</span></div>
+        <div class="session-players">${s.players.join(', ')}</div>
+        <div class="session-rounds">${s.rounds.length} rodada${s.rounds.length!==1?'s':''} · ${s.rounds.filter(r=>r.valid).length} aprovadas</div>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
+</div>`}
+
+function addPlayer(){const n=S.setupName.trim();if(n&&S.setupPlayers.length<6&&!S.setupPlayers.includes(n)){S.setupPlayers.push(n);S.setupName='';rerender();setTimeout(()=>{const i=document.getElementById('pname-inp');if(i){i.focus();i.value=''}},20)}}
+function rmPlayer(i){S.setupPlayers.splice(i,1);rerender()}
+
+function startGame(){
+  if(S.setupPlayers.length<2)return;
+  S.players=[...S.setupPlayers];S.teamScore=0;usedMissions=[];
+  S.round=1;S.screen='game';S.history=[];S.currentSession=null;
+  beginRound();
+}
+
+function beginRound(){
+  S.mission=drawMission();
+  S.hand={persona:'',contexto:'',tarefa:'',formato:'',etica:''};
+  S.masterChecks={structure:false,cards:false,creative:false,mission:false,penalty:false};
+  S.masterNote='';S.result=null;S.showDiscard=false;
+  rerender();
+}
+
+function rGame(){
+  const h=S.hand,m=S.mission;
+  const blockers=getBlockers();
+  const canEval=blockers.length===0&&!S.result;
+  const masterScore=computeMasterScore();
+  const masterValid=masterScore>=5&&!S.masterChecks.penalty;
+
+  return`
+<div class="topbar">
+  <div class="logo"><span class="logo-badge">PH</span> PROMPT HACKERS</div>
+  <div class="topbar-right">
+    <div class="pill accent"><i class="ti ti-trophy" aria-hidden="true"></i> Grupo<strong>${S.teamScore}</strong>pts</div>
+    <div class="pill">Rodada <strong>${S.round}/${S.totalRounds}</strong></div>
+    <div class="pill" style="display:flex;gap:4px">${S.players.map(p=>`<span style="font-size:10px;padding:1px 6px;background:var(--color-background-secondary);border-radius:4px">${p}</span>`).join('')}</div>
+  </div>
+</div>
+<div class="page">
+
+  <div class="card">
+    <div class="card-title"><span><i class="ti ti-target" aria-hidden="true"></i>  missão da rodada ${S.round}</span><span style="font-size:10px;color:var(--color-text-tertiary)">sorteada automaticamente</span></div>
+    <div class="mission-highlight">
+      <div class="mission-text">${m.text}</div>
+      <div class="ethics-row"><span class="ethics-label">Ética obrigatória:</span>${m.ethics}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-cards" aria-hidden="true"></i>  cartas físicas do grupo</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="selects-grid">
+        <div class="inp-group"><div class="inp-label"><span class="badge-p">Persona</span><span class="code-hint">P01–P20 · obrigatória</span></div>${makeSelect('persona','',CARDS.persona,'carta Persona')}</div>
+        <div class="inp-group"><div class="inp-label"><span class="badge-c">Contexto</span><span class="code-hint">C01–C20 · recomendada</span></div>${makeSelect('contexto','',CARDS.contexto,'carta Contexto')}</div>
+        <div class="inp-group"><div class="inp-label"><span class="badge-t">Tarefa</span><span class="code-hint">T01–T20 · obrigatória</span></div>${makeSelect('tarefa','',CARDS.tarefa,'carta Tarefa')}</div>
+        <div class="inp-group"><div class="inp-label"><span class="badge-f">Formato</span><span class="code-hint">F01–F15 · obrigatória</span></div>${makeSelect('formato','',CARDS.formato,'carta Formato')}</div>
+      </div>
+      <div class="inp-group"><div class="inp-label"><span class="badge-e">Ética</span><span class="code-hint">E01–E15 · opcional</span></div>${makeSelect('etica','',CARDS.etica,'carta Ética (opcional)')}
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:6px">prompt montado:</div>
+        <div class="prompt-preview">${promptHtml()}</div>
+      </div>
+      ${blockers.length>0&&(h.persona||h.tarefa||h.formato)?`<div class="blocker-msg"><ul>${blockers.map(b=>`<li>${b}</li>`).join('')}</ul></div>`:''}
+      <div style="display:flex;gap:8px">
+        <button onclick="clearHand()" style="padding:7px 14px;border-radius:var(--border-radius-md)"><i class="ti ti-refresh" aria-hidden="true"></i> Limpar cartas</button>
+        ${S.showDiscard?'':`<button onclick="S.showDiscard=true;rerender()" style="padding:7px 14px;border-radius:var(--border-radius-md);color:var(--color-text-warning);border-color:var(--color-border-warning)"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Sacrificar 1pt → novas cartas</button>`}
+      </div>
+      ${S.showDiscard?`<div class="discard-box">Sacrificar 1 ponto do grupo e pegar novas cartas físicas?<div class="dbtn-row"><button onclick="confirmDiscard()" style="flex:1;padding:6px;border-radius:var(--border-radius-md);color:var(--color-text-warning);border-color:var(--color-border-warning)">Confirmar (−1 pt)</button><button onclick="S.showDiscard=false;rerender()" style="flex:1;padding:6px;border-radius:var(--border-radius-md)">Cancelar</button></div></div>`:''}
+    </div>
+  </div>
+
+  ${!S.result&&canEval?rMasterPanel(masterScore,masterValid):''}
+  ${S.result?rResult(S.result):''}
+
+  ${S.result?`<div style="display:flex;gap:8px">
+    ${S.round<S.totalRounds?`<button onclick="nextRound()" style="flex:1;padding:10px;border-radius:var(--border-radius-md);background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success);font-size:12px"><i class="ti ti-arrow-right" aria-hidden="true"></i>  próxima missão</button>`
+    :`<button onclick="endGame()" style="flex:1;padding:10px;border-radius:var(--border-radius-md);background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success);font-size:12px"><i class="ti ti-trophy" aria-hidden="true"></i>  resultado final</button>`}
+  </div>`:''}
+
+  ${S.history.length?`
+  <div class="card">
+    <div class="card-title"><i class="ti ti-history" aria-hidden="true"></i>  rodadas desta partida</div>
+    ${S.history.map(h=>`<div class="hist-item">
+      <div class="hist-dot ${h.valid?'v':'i'}"></div>
+      <div class="hist-meta">Rodada ${h.round}</div>
+      <div class="hist-mission">${h.missionText}</div>
+      <div class="hist-pts ${h.points>0?'p':'n'}">${h.points>0?'+':''}${h.points}pts</div>
+    </div>`).reverse().join('')}
+  </div>`:''}
+
+</div>`}
+
+function rMasterPanel(masterScore,masterValid){
+  return`<div class="master-panel">
+    <div class="master-header">
+      <i class="ti ti-user-check" style="font-size:16px" aria-hidden="true"></i>
+      <span class="master-title">avaliação do mestre</span>
+      <span class="master-sub">marque os critérios cumpridos pelo grupo</span>
+    </div>
+    <div class="master-body">
+      <div class="criteria-list">
+        ${CRITERIA.map(c=>{
+          const checked=S.masterChecks[c.id];
+          return`<div class="criterion-row ${checked?(c.isPenalty?'off':'on'):''}">
+            <div class="crit-toggle"><input type="checkbox" id="chk-${c.id}" ${checked?'checked':''} onchange="toggleCrit('${c.id}',this.checked)"></div>
+            <div class="crit-info">
+              <div class="crit-name">${c.label}</div>
+              <div class="crit-desc">${c.desc}</div>
+            </div>
+            <div class="crit-pts ${c.isPenalty?'neg':'pos'}">${c.pts>0?'+':''}${c.pts}</div>
+          </div>`}).join('')}
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:6px">observação do mestre (opcional)</div>
+        <textarea id="master-note-input" placeholder="Feedback para o grupo sobre este prompt..." oninput="S.masterNote=this.value" style="width:100%;font-family:var(--font-sans);font-size:12px;resize:vertical;min-height:56px;border-radius:var(--border-radius-md)">${S.masterNote}</textarea>
+      </div>
+      <div class="score-preview">
+        <span class="score-preview-label">pontuação desta rodada:</span>
+        <span class="score-preview-value ${masterValid?'valid':'invalid'}">${masterScore>0?'+':''}${masterScore} pts ${masterValid?'✓ aprovado':'✗ reprovado'}</span>
+      </div>
+      <button onclick="submitMaster()" style="padding:10px;border-radius:var(--border-radius-md);font-size:12px;${masterValid?'background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)':'background:var(--color-background-danger);border-color:var(--color-border-danger);color:var(--color-text-danger)'}">
+        <i class="ti ti-check" aria-hidden="true"></i>  confirmar avaliação do mestre
+      </button>
+    </div>
+  </div>`}
+
+function toggleCrit(id,val){S.masterChecks[id]=val;rerender()}
+
+function submitMaster(){
+  const pts=computeMasterScore();
+  const valid=pts>=5&&!S.masterChecks.penalty;
+  const finalPts=valid?pts:Math.min(0,pts);
+  S.teamScore+=finalPts;
+  const criterios=CRITERIA.map(c=>({ok:S.masterChecks[c.id]&&!c.isPenalty,text:`${c.label}: ${c.pts>0?'+':''}${c.pts} pts — ${S.masterChecks[c.id]?'cumprido':'não cumprido'}`}));
+  S.result={valid,points:finalPts,criterios,note:S.masterNote,masterChecks:{...S.masterChecks}};
+  S.history.push({round:S.round,valid,points:finalPts,missionText:S.mission.text.slice(0,55)+'...'});
+  rerender();
+}
+
+function rResult(r){
+  return`<div class="result-box ${r.valid?'valid':'invalid'}">
+    <div class="result-head">
+      <i class="ti ${r.valid?'ti-circle-check':'ti-circle-x'} result-icon" style="font-size:22px;color:var(--color-text-${r.valid?'success':'danger'})" aria-hidden="true"></i>
+      <span class="result-title ${r.valid?'valid':'invalid'}">${r.valid?'prompt aprovado pelo mestre':'prompt reprovado pelo mestre'}</span>
+      <span style="margin-left:auto;font-size:14px;font-weight:500;color:var(--color-text-${r.valid?'success':'danger'})">${r.points>0?'+':''}${r.points} pts</span>
+    </div>
+    <div class="result-crit">
+      ${(r.criterios||[]).map(c=>`<div class="rc"><i class="ti ${c.ok?'ti-check':'ti-x'} ${c.ok?'rc-ok':'rc-fail'}" style="font-size:13px;margin-top:1px;flex-shrink:0" aria-hidden="true"></i><span class="rc-text">${c.text}</span></div>`).join('')}
+    </div>
+    ${r.note?`<div class="result-note"><i class="ti ti-message" style="font-size:13px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>${r.note}</div>`:''}
+  </div>`}
+
+function clearHand(){S.hand={persona:'',contexto:'',tarefa:'',formato:'',etica:''};S.result=null;S.masterChecks={structure:false,cards:false,creative:false,mission:false,penalty:false};S.masterNote='';rerender()}
+function confirmDiscard(){S.teamScore=Math.max(0,S.teamScore-1);clearHand();S.showDiscard=false;rerender()}
+
+function nextRound(){S.round++;beginRound()}
+
+function endGame(){
+  const approved=S.history.filter(h=>h.valid).length;
+  const session={
+    id:Date.now().toString(),
+    date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    players:[...S.players],
+    totalRounds:S.totalRounds,
+    teamScore:S.teamScore,
+    rounds:S.history.map(h=>({...h})),
+    approved,
+  };
+  addSession(session);
+  S.currentSession=session;
+  S.screen='gameover';
+  rerender();
+}
+
+function rGameOver(){
+  const s=S.currentSession||{teamScore:S.teamScore,rounds:S.history,players:S.players,totalRounds:S.totalRounds};
+  const approved=s.rounds.filter(r=>r.valid).length;
+  const total=s.rounds.length;
+  const pct=total>0?Math.round(approved/total*100):0;
+  let icon,msg;
+  if(s.teamScore>=35){icon='ti-trophy';msg='Desempenho impecável! Vocês são Prompt Hackers de elite.'}
+  else if(s.teamScore>=24){icon='ti-award';msg='Excelente trabalho! O grupo domina a engenharia de prompt.'}
+  else if(s.teamScore>=14){icon='ti-medal';msg='Bom resultado! Ainda há espaço para melhorar.'}
+  else if(s.teamScore>=5){icon='ti-certificate';msg='Resultado razoável. Pratiquem mais as combinações de cartas!'}
+  else{icon='ti-device-laptop';msg='Começo de jornada. Não desistam, a prática leva à perfeição!'}
+  return`
+<div class="topbar"><div class="logo"><span class="logo-badge">PH</span> PROMPT HACKERS</div>
+  <div class="topbar-right">
+    <button onclick="resetGame()" style="padding:5px 12px;border-radius:var(--border-radius-md);font-size:11px"><i class="ti ti-refresh" aria-hidden="true"></i> Nova partida</button>
+    <button onclick="S.screen='history';rerender()" style="padding:5px 12px;border-radius:var(--border-radius-md);font-size:11px"><i class="ti ti-history" aria-hidden="true"></i> Histórico</button>
+  </div>
+</div>
+<div class="page">
+  <div class="card" style="text-align:center;padding:24px">
+    <i class="ti ${icon}" style="font-size:40px;color:var(--color-text-success);display:block;margin-bottom:8px" aria-hidden="true"></i>
+    <div style="font-size:10px;letter-spacing:2px;color:var(--color-text-tertiary);margin-bottom:4px">pontuação final do grupo</div>
+    <div style="font-size:52px;font-weight:500;color:var(--color-text-primary);line-height:1.1">${s.teamScore}</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 16px;font-family:var(--font-sans)">${msg}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px">
+      ${s.players.map(p=>`<span style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:3px 12px;font-size:12px">${p}</span>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">rodadas</div>
+        <div style="font-size:20px;font-weight:500">${total}</div>
+      </div>
+      <div style="background:var(--color-background-success);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:10px;color:var(--color-text-success);margin-bottom:4px">aprovadas</div>
+        <div style="font-size:20px;font-weight:500;color:var(--color-text-success)">${approved}</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">taxa</div>
+        <div style="font-size:20px;font-weight:500;color:var(--color-text-${pct>=70?'success':pct>=40?'warning':'danger'})">${pct}%</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-list" aria-hidden="true"></i>  resumo das rodadas</div>
+    ${s.rounds.map(r=>`<div class="hist-item">
+      <div class="hist-dot ${r.valid?'v':'i'}"></div>
+      <div class="hist-meta">Rodada ${r.round}</div>
+      <div class="hist-mission">${r.missionText}</div>
+      <div class="hist-pts ${r.points>0?'p':'n'}">${r.points>0?'+':''}${r.points}pts</div>
+    </div>`).join('')}
+  </div>
+</div>`}
+
+function rHistory(){
+  const sessions=loadSessions();
+  return`
+<div class="topbar"><div class="logo"><span class="logo-badge">PH</span> PROMPT HACKERS</div>
+  <button onclick="S.screen='setup';rerender()" style="padding:5px 12px;border-radius:var(--border-radius-md);font-size:11px"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+</div>
+<div class="page">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-history" aria-hidden="true"></i>  histórico de partidas <span style="font-size:10px;font-weight:400;color:var(--color-text-tertiary)">${sessions.length} partida${sessions.length!==1?'s':''} salva${sessions.length!==1?'s':''}</span></div>
+    ${sessions.length===0?`<div class="empty-state"><i class="ti ti-database-off"></i>Nenhuma partida salva ainda.<br>Complete uma partida para ela aparecer aqui.</div>`:''}
+    ${sessions.map(s=>{
+      const approved=s.rounds.filter(r=>r.valid).length;
+      const pct=s.rounds.length>0?Math.round(approved/s.rounds.length*100):0;
+      return`<div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:2px">${s.date}</div>
+            <div style="font-size:13px;font-family:var(--font-sans)">${s.players.join(', ')}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:20px;font-weight:500">${s.teamScore} pts</div>
+            <div style="font-size:10px;color:var(--color-text-${pct>=70?'success':pct>=40?'warning':'danger'})">${pct}% aprovação</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${s.rounds.map(r=>`<div class="hist-item" style="padding:4px 0">
+            <div class="hist-dot ${r.valid?'v':'i'}"></div>
+            <div class="hist-meta" style="font-size:10px">R${r.round}</div>
+            <div class="hist-mission" style="font-size:11px">${r.missionText}</div>
+            <div class="hist-pts ${r.points>0?'p':'n'}" style="font-size:11px">${r.points>0?'+':''}${r.points}</div>
+          </div>`).join('')}
+        </div>
+      </div>`}).join('')}
+    ${sessions.length>0?`<button onclick="clearHistory()" style="width:100%;padding:8px;border-radius:var(--border-radius-md);color:var(--color-text-danger);border-color:var(--color-border-danger);font-size:11px;margin-top:4px"><i class="ti ti-trash" aria-hidden="true"></i> Limpar todo o histórico</button>`:''}
+  </div>
+</div>`}
+
+function viewSession(id){S.screen='history';rerender()}
+function clearHistory(){if(confirm('Apagar todo o histórico de partidas?')){saveSessions([]);rerender()}}
+
+function resetGame(){
+  S={...S,screen:'setup',players:[],teamScore:0,round:1,history:[],mission:null,hand:{persona:'',contexto:'',tarefa:'',formato:'',etica:''},masterChecks:{structure:false,cards:false,creative:false,mission:false,penalty:false},masterNote:'',result:null,showDiscard:false,currentSession:null};
+  rerender();
+}
+
+function endGame_forced(){S.screen='gameover';rerender()}
+
+rerender();
+</script>
+
+
+<div id="app"></div>
+
+<script>
+  // todo o seu JavaScript
+</script>
+
+<!-- MODAL DO MANUAL -->
+<div id="manual-modal" class="manual-modal">
+
+  <div class="manual-panel">
+
+    <div class="manual-header">
+      <div class="manual-title">
+        <i class="ti ti-book-2"></i>
+        Manual do Jogo
+      </div>
+
+      <button class="manual-close" onclick="closeManual()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="manual-content" id="manual-content">
+
+        <h1>Manual do Usuário e Regras — Prompt Hackers</h1>
+
+        <h2>📖 Apresentação</h2>
+        <p>
+          Prompt Hackers é um jogo educacional offline com temática hacker desenvolvido para ensinar os fundamentos da Engenharia de Prompt e o uso ético da Inteligência Artificial de forma prática e gamificada.
+        </p>
+        <p>
+          No jogo, os participantes assumem o papel de hackers que utilizam prompts bem estruturados como comandos para acessar sistemas de IA simulados e cumprir missões estratégicas. A proposta busca tornar o aprendizado de IA acessível para estudantes e professores mesmo em ambientes com pouca ou nenhuma conectividade à internet.
+        </p>
+
+        <hr>
+
+        <h2>🎯 Objetivo do Jogo</h2>
+        <p>
+          Construir prompts eficientes para completar missões, superar desafios e acumular pontos ao longo da partida. Os jogadores devem utilizar lógica, criatividade, contexto e estrutura adequada para criar comandos capazes de “hackear” os sistemas simulados do jogo.
+        </p>
+
+        <hr>
+
+        <h2>👥 Público-Alvo</h2>
+        <ul>
+          <li>Estudantes em idade escolar</li>
+          <li>Professores e Educadores</li>
+          <li>Escolas com baixa conectividade</li>
+          <li>Iniciantes em Inteligência Artificial</li>
+        </ul>
+
+        <hr>
+
+        <h2>🧑‍🏫 Guia Especial para o Professor / Mediador (Para não especialistas)</h2>
+
+        <p><em>Se você nunca usou o ChatGPT ou não sabe o que é uma Inteligência Artificial (IA), não se preocupe! Este jogo foi feito para ser conduzido por você. Leia este breve resumo para guiar seus alunos com confiança.</em></p>
+
+        <h3>1. O que é "Engenharia de Prompt"?</h3>
+        <p>
+          Um prompt é o comando ou instrução que digitamos para a Inteligência Artificial. A "Engenharia de Prompt" é a habilidade de escrever esse comando da melhor forma possível para que a IA entregue exatamente o que precisamos. Pense nisso como fazer um pedido em um restaurante: se você disser apenas "quero comida", o garçom trará qualquer coisa. Se você disser "quero um hambúrguer bem passado, sem cebola, com batatas fritas", o pedido virá perfeito. O jogo ensina os alunos a fazerem o "pedido perfeito".
+        </p>
+
+        <h3>2. O Seu Papel como Mediador (O Juiz)</h3>
+        <p>
+          Você atuará como o avaliador (simulando a IA). Ao ouvir os prompts montados pelos alunos, use o bom senso e a ficha de avaliação. Pergunte-se: "Se eu fosse um computador, eu conseguiria entender claramente o que o aluno pediu usando todas as cartas que ele tem na mão?". Se a instrução for confusa, ele perde pontos.
+        </p>
+
+        <h3>3. A Regra de Ouro: Ética e LGPD</h3>
+        <p>
+          O jogo também ensina cidadania digital. Como mediador, você deve penalizar qualquer jogador que crie um comando que exponha dados pessoais reais ou que induza a IA a gerar preconceitos ou conteúdos prejudiciais, ferindo a LGPD (Lei Geral de Proteção de Dados).
+        </p>
+
+        <hr>
+
+        <h2>🧩 Componentes do Jogo</h2>
+        <ul>
+          <li><strong>Cartas de Missão:</strong> Definem o problema central da rodada. Ex: acessar sistema da biblioteca e gerar relatório.</li>
+          <li><strong>Cartas de Persona:</strong> Definem o papel da IA. Ex: especialista em segurança da informação.</li>
+          <li><strong>Cartas de Contexto:</strong> Informações de cenário e restrições.</li>
+          <li><strong>Cartas de Tarefa:</strong> A ação que a IA deve executar.</li>
+          <li><strong>Cartas de Formato:</strong> Estrutura da resposta (tabela, tópicos etc.).</li>
+          <li><strong>Cartas de Ética:</strong> Regras de segurança e LGPD.</li>
+          <li><strong>Ficha de Avaliação e Pontuação.</strong></li>
+        </ul>
+
+        <hr>
+
+        <h2>👤 Quantidade de Jogadores</h2>
+        <ul>
+          <li>Mínimo: 3 jogadores</li>
+          <li>Máximo: 6 jogadores</li>
+          <li>Modo: cooperativo</li>
+        </ul>
+
+        <hr>
+
+        <h2>⚙️ Preparação da Partida</h2>
+        <ul>
+          <li>Embaralhe os 6 baralhos separadamente.</li>
+          <li>Escolha o primeiro Mestre da rodada.</li>
+          <li>Cada jogador recebe 1 carta de Persona, Contexto, Tarefa e Formato.</li>
+          <li>Defina 3 a 5 rodadas.</li>
+        </ul>
+
+        <hr>
+
+        <h2>▶️ Funcionamento do Jogo</h2>
+
+        <h3>1. O Mestre e a Missão</h3>
+        <p>
+          No início da partida, um dos jogadores é escolhido para assumir o papel de "Mestre" da rodada. O Mestre inicia revelando a missão indicada no app e a declara em voz alta para todos os jogadores. Essas missões servem de base para o desafio que o grupo precisará resolver. 
+        </p>
+
+        <h3>2. Construção do Prompt</h3>
+        <p>
+          Os demais jogadores assumem o papel de hackers e devem trabalhar juntos. O grupo deve escrever ou estruturar um prompt utilizando a combinação das cartas que possuem na mão (Persona + Contexto + Tarefa + Formato + Ética) para solucionar a missão de acordo com a descrição.
+        </p>
+
+        <h3>3. Análise e Feedback</h3>
+        <p>
+          Após a equipe finalizar a rodada e estruturar o prompt, o Mestre analisa as cartas usadas pelo grupo. Ele é responsável por aprovar cada carta, declarar se o prompt final é válido ou não, e dar um feedback apontando o que o grupo poderia mudar para que o prompt ficasse melhor (sempre se baseando no Sistema de Pontuação). 
+        </p>
+
+        <h3>4. Rotação de Turnos</h3>
+        <p>
+          Depois que o Mestre analisa e pontua a jogada, ele passa a vez de ser o Mestre para o jogador imediatamente à sua direita. Essa rotação de papéis acontece sucessivamente a cada nova rodada, até que a partida acabe.
+        </p>
+
+        <hr>
+
+        <h2>🏆 Sistema de Pontuação</h2>
+
+        <table border="1" cellpadding="8">
+          <tr>
+            <th>Critério</th>
+            <th>Pontos</th>
+          </tr>
+          <tr>
+            <td>Prompt bem estruturado</td>
+            <td>+3</td>
+          </tr>
+          <tr>
+            <td>Uso correto das cartas</td>
+            <td>+2</td>
+          </tr>
+          <tr>
+            <td>Criatividade</td>
+            <td>+2</td>
+          </tr>
+          <tr>
+            <td>Cumprimento da missão e ética</td>
+            <td>+3</td>
+          </tr>
+          <tr>
+            <td>Violação ética</td>
+            <td>-3</td>
+          </tr>
+        </table>
+
+        <hr>
+
+        <h2>⚖️ Regras de Ética</h2>
+        <ul>
+          <li>Proibido uso de dados pessoais reais</li>
+          <li>Proibido conteúdo ofensivo</li>
+          <li>Proibido incentivar invasão de sistemas reais</li>
+          <li>Proibido conteúdo discriminatório</li>
+          <li>Respeitar a LGPD</li>
+        </ul>
+
+        <hr>
+
+        <h2>🥇 Condição de Vitória</h2>
+        <p>
+          Como o jogo é focado na cooperação, ao final de todas as rodadas definidas, os jogadores somam seus pontos. A pontuação final reflete o desempenho de todo o grupo na partida, consagrando a equipe inteira como os Prompt Hackers mais habilidosos e éticos.
+        </p>
+
+        <hr>
+
+        <h2>🎓 Objetivos Educacionais e Proposta Pedagógica</h2>
+        <p>
+          O jogo desenvolve Engenharia de Prompt, pensamento lógico, criatividade, resolução de problemas e uso ético da IA.
+          Promove aprendizagem baseada em jogos e discussão sobre LGPD e privacidade.
+        </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
