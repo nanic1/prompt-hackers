@@ -730,8 +730,8 @@ function rSetup(){
         </div>
         ${S.setupPlayers.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${S.setupPlayers.map((p,i)=>`<span style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:3px 10px;font-size:11px;display:flex;align-items:center;gap:6px">${p}<span onclick="rmPlayer(${i})" style="cursor:pointer;color:var(--color-text-danger)">×</span></span>`).join('')}</div>`:''}
       </div>
-      <button onclick="startGame()" ${S.setupPlayers.length<2?'disabled':''} style="padding:10px;border-radius:var(--border-radius-md);font-size:12px;${S.setupPlayers.length>=2?'background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)':''}">
-        ${S.setupPlayers.length<2?'adicione pelo menos 2 jogadores para começar':'<i class="ti ti-player-play" aria-hidden="true"></i>  iniciar partida'}
+      <button onclick="startGame()" ${S.setupPlayers.length<3?'disabled':''} style="padding:10px;border-radius:var(--border-radius-md);font-size:12px;${S.setupPlayers.length>=2?'background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success)':''}">
+        ${S.setupPlayers.length<2?'adicione pelo menos 3 jogadores para começar':'<i class="ti ti-player-play" aria-hidden="true"></i>  iniciar partida'}
       </button>
     </div>
   </div>
